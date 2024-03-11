@@ -1,10 +1,20 @@
-import { EmailOtpService } from '@app/common';
 import { Module } from '@nestjs/common';
-import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
+import { ProductController } from './product.controller';
+import { NodemailerModule } from '@app/common/modules';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
+  imports: [
+    NodemailerModule,
+    MulterModule.register({
+      dest: './uploads/images/products',
+      limits: {
+        fieldSize: Infinity,
+      },
+    }),
+  ],
   controllers: [ProductController],
-  providers: [EmailOtpService, ProductService],
+  providers: [ProductService],
 })
 export class ProductModule {}

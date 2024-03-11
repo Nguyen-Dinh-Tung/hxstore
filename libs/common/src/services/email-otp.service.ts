@@ -20,7 +20,7 @@ export class EmailOtpService {
     secure: true,
     auth: {
       user: process.env.EMAIL_APP,
-      pass: EmailOtpService.password,
+      pass: process.env.EMAIL_PASWORD,
     },
   });
 
