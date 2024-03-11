@@ -1,17 +1,21 @@
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { UserModule } from './user.module';
-import { ConfigService } from '@nestjs/config';
-import { AllFillterException } from '@app/exceptions';
-import * as morgan from 'morgan';
-import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import * as morgan from 'morgan';
+import { AppModule } from './app.module';
+import { AllFillterException } from '@app/exceptions';
+import { ConfigService } from '@nestjs/config';
+
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(UserModule);
-
-  app.setGlobalPrefix('api/v1');
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get<ConfigService>(ConfigService);
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
   morgan.token('body', function (req: any) {
     return JSON.stringify(req?.body ?? '{}');
   });
@@ -27,8 +31,7 @@ async function bootstrap() {
     ),
   );
 
-  app.set('truct proxy', true);
-
+  app.set('trust proxy', true);
   app.enableCors({
     credentials: true,
     origin: true,
@@ -42,28 +45,40 @@ async function bootstrap() {
     }),
   );
 
-  const configService = app.get(ConfigService);
-  const { httpAdapter } = app.get(HttpAdapterHost);
-
-  if (configService.get('USE_SWAGGER')) {
+  if (configService.get('swagger')) {
     const config = new DocumentBuilder()
-      .setTitle('User api')
-      .setDescription('Here have all api and description')
+      .setTitle('User API specs')
+      .setDescription('The API description')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
+
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, document, {
       swaggerOptions: { persistAuthorization: true },
     });
-    app.use(helmet({ contentSecurityPolicy: true }));
+
+    app.use(
+      helmet({
+        contentSecurityPolicy: false,
+        crossOriginResourcePolicy: false,
+      }),
+    );
   } else {
-    app.use(helmet({}));
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: false,
+      }),
+    );
   }
 
-  app.useGlobalFilters(new AllFillterException(httpAdapter));
-  await app.listen(configService.get<number>('USER_PORT'));
+  const { httpAdapter } = app.get(HttpAdapterHost);
 
-  Logger.log(`SERVER RUNING PORT : ${configService.get<number>('USER_PORT')}`);
+  app.useGlobalFilters(new AllFillterException(httpAdapter));
+
+  const port = configService.get<number>('server.USER_PORT') || 3000;
+  await app.listen(port, () => {
+    Logger.log('API is listening on port: ' + port);
+  });
 }
 bootstrap();
