@@ -5,19 +5,19 @@ import { ProductTypesEnum } from '../enum';
 
 @Entity('products')
 export class ProductsEntity extends IdNumberDateEntity {
-  @NotNullColum({ type: 'varchar' })
+  @NotNullColum({})
   name: string;
 
-  @NotNullColum({ enum: ProductTypesEnum, type: 'enum' })
+  @NotNullColum({ type: 'enum', enum: ProductTypesEnum })
   type: ProductTypesEnum;
 
-  @NotNullColum({ type: 'bigint' })
+  @NotNullColum({ type: 'bigint', default: 0 })
   amount: bigint;
 
-  @NotNullColum({ type: 'bigint' })
+  @NotNullColum({ type: 'bigint', default: 0 })
   price: bigint;
 
-  @NotNullColum({ type: 'bigint' })
+  @NotNullColum({ type: 'bigint', default: 0 })
   totalSold: bigint;
 
   @NotNullColum()

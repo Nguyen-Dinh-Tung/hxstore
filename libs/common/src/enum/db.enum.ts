@@ -1,4 +1,6 @@
-export enum ProductTypesEnum {}
+export enum ProductTypesEnum {
+  STIMULATE = 'STIMULATE',
+}
 export enum PositionsScreenEnum {
   TOP = 'TOP',
   BODY = 'BODY',
