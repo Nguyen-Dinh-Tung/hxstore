@@ -19,7 +19,7 @@ export class EmailOtpService {
     port: 465,
     secure: true,
     auth: {
-      user: EmailOtpService.email,
+      user: process.env.EMAIL_APP,
       pass: EmailOtpService.password,
     },
   });
