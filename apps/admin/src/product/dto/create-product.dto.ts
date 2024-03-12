@@ -1,6 +1,5 @@
 import { ProductTypesEnum } from '@app/common/enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,

@@ -13,11 +13,6 @@ import { UserModule } from '../user/user.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        console.log(
-          configService.get<string>('ADMIN_SECRET'),
-          `configService.get<string>('ADMIN_SECRET')`,
-        );
-
         return {
           global: true,
           secret: configService.get<string>('ADMIN_SECRET'),
