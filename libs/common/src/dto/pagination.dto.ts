@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type as TransformType } from 'class-transformer';
 import { Type } from '@nestjs/common';
 export class PageRequest {
@@ -10,6 +10,11 @@ export class PageRequest {
   @TransformType(() => Number)
   readonly page: number = 1;
 
+  @IsOptional()
+  @ApiPropertyOptional()
+  @IsString()
+  keyword: string;
+
   @IsNumber()
   @Min(10)
   @Max(100)
@@ -18,7 +23,7 @@ export class PageRequest {
   @TransformType(() => Number)
   readonly limit: number = 10;
 
-  public getSkip() {
+  public get skip() {
     return (this.page - 1) * this.limit;
   }
 }

@@ -10,7 +10,6 @@ export class FileExceptionFillter extends BaseExceptionFilter {
     const file: Express.Multer.File = req.file;
     const files = req.files;
     if (file) {
-      console.log(file, 'file');
 
       fs.unlink(file.path, (err) => {});
     }

@@ -51,6 +51,7 @@ export class AuthGuard implements CanActivate {
           id: payload.id,
         },
       });
+
       if (!account) return false;
 
       request['user'] = account;

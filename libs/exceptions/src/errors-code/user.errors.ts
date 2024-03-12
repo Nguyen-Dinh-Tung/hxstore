@@ -1,1 +1,4 @@
-export enum UserError {}
+export enum UserErrors {
+  ERROR_USER_NOT_FOUND = 'ERROR_USER_NOT_FOUND',
+  ERROR_PASSWORD_WRONG = 'ERROR_PASSWORD_WRONG',
+}

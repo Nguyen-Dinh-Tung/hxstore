@@ -11,8 +11,8 @@ import { UserService } from './user/user.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
     CoreModule.forRoot(),
+    TypeOrmModule.forFeature([UserEntity]),
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -39,6 +39,7 @@ export class AppModule implements OnModuleInit {
     await this.userService.create({
       username: process.env.ADMIN_USERNAME,
       password: process.env.ADMIN_PASSWORD,
+      createdAt: new Date().toISOString(),
     });
   }
 }
