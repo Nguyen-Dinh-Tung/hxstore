@@ -42,6 +42,8 @@ export class AuthGuard implements CanActivate {
         secret: process.env.ADMIN_SECRET,
       });
 
+      console.log(payload, `payload`);
+
       if (!payload.id) {
         return false;
       }
@@ -51,6 +53,7 @@ export class AuthGuard implements CanActivate {
           id: payload.id,
         },
       });
+
       if (!account) return false;
 
       request['user'] = account;

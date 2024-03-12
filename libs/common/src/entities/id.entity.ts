@@ -7,7 +7,7 @@ export class IdEntity {
 }
 
 export class DateEntity {
-  @DateColumn({ name: 'created_at' })
+  @DateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
   @DateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date;

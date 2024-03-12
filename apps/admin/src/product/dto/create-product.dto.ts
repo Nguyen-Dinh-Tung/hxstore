@@ -1,6 +1,6 @@
 import { ProductTypesEnum } from '@app/common/enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -24,15 +24,15 @@ export class CreateProductDto {
   @IsNotEmpty()
   @ApiProperty()
   @IsNumberString()
-  @Transform((data) => BigInt(data.value))
   amount: bigint;
 
   @IsNotEmpty()
   @ApiProperty()
   @IsNumberString()
-  @Transform((data) => BigInt(data.value))
   price: bigint;
 
   @ApiProperty({ type: String, format: 'binary' })
   file;
+
+  urlIMG;
 }

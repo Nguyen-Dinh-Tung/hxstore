@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '@app/common';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +13,11 @@ import { UserEntity } from '@app/common';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        console.log(
+          configService.get<string>('ADMIN_SECRET'),
+          `configService.get<string>('ADMIN_SECRET')`,
+        );
+
         return {
           global: true,
           secret: configService.get<string>('ADMIN_SECRET'),
@@ -22,6 +28,7 @@ import { UserEntity } from '@app/common';
       },
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtService],

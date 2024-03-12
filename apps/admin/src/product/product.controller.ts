@@ -26,7 +26,6 @@ export class ProductController {
   }
 
   @Post()
-  @Public()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   @UseFilters(FileExceptionFillter)
