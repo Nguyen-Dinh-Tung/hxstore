@@ -13,3 +13,8 @@ export enum PositionRowEnum {
   THREE = '2',
   FOUR = '3',
 }
+
+export enum ProductEventTypes {
+  SALE = 'SALE',
+  BONUS = 'BONUS',
+}

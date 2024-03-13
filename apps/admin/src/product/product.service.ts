@@ -1,12 +1,16 @@
 import { ProductsEntity } from '@app/common';
-import { saveImage } from '@app/common/helpers';
+import {
+  compareStartAndEndDateWithCurrentDate,
+  saveImage,
+} from '@app/common/helpers';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, In, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import {
   AppHttpBadRequest,
   ConfigErrors,
+  EventError,
   FileErrors,
   ProductErrors,
 } from '@app/exceptions';
@@ -19,6 +23,9 @@ import { SetPositionsProductDto } from './dto/set-positions-products.dto';
 import { ConfigPositionsEntity } from '@app/common/entities/config-positions.entity';
 import { UpdatePositionsProductDto } from './dto/accept-positions-product.dto';
 import { PageMeta } from '@app/common/dto/pagination.dto';
+import { CreateProductEventDto } from './dto/create-product-event.dto';
+import { ProductEventEntity } from '@app/common/entities/product-event.entity';
+import { UpdateProductEventDto } from './dto/update-product-event.dto';
 
 @Injectable()
 export class ProductService {
@@ -28,6 +35,9 @@ export class ProductService {
 
     @InjectRepository(ConfigPositionsEntity)
     private configPositionsRepo: Repository<ConfigPositionsEntity>,
+
+    @InjectRepository(ProductEventEntity)
+    private productEventRepo: Repository<ProductEventEntity>,
   ) {}
 
   async findAll(query: FindAllProductDto) {
@@ -250,5 +260,101 @@ export class ProductService {
     }
 
     return config;
+  }
+
+  async createProductEvent(data: CreateProductEventDto) {
+    compareStartAndEndDateWithCurrentDate(data.startDate, data.endDate);
+
+    await this.findOneProductEventOrThrow(
+      { productId: data.productId },
+      'NOT-EXIST',
+    );
+
+    const productMain = await this.findOneOrThrowNotFound({
+      where: { id: data.productId },
+    });
+
+    if (data.productIds && data.productIds.length) {
+      data['productBonus'] = await this.findProductsOrThrow(data);
+    }
+
+    data['product'] = productMain;
+
+    delete data.productId;
+    delete data.productIds;
+
+    await this.productEventRepo.save(
+      this.productEventRepo.create({
+        ...data,
+        createdAt: new Date().toISOString(),
+      }),
+    );
+
+    return {
+      success: true,
+    };
+  }
+
+  private async findProductsOrThrow(data: CreateProductEventDto) {
+    const productBonus = await this.productRepo.find({
+      where: {
+        id: In(data.productIds),
+      },
+    });
+
+    if (productBonus.length !== data.productIds.length) {
+      throw new AppHttpBadRequest(ProductErrors.ERROR_MISSING_PRODUCT);
+    }
+    return productBonus;
+  }
+
+  private async findOneProductEventOrThrow(
+    data: { productId?: number; id?: number },
+    status: 'EXIST' | 'NOT-EXIST',
+  ) {
+    const productEvent = await this.productEventRepo.findOne({
+      where: {
+        product: {
+          id: data.productId,
+        },
+        id: data.id,
+        isActive: true,
+      },
+    });
+
+    if (productEvent && status === 'NOT-EXIST') {
+      throw new AppHttpBadRequest(EventError.ERROR_EXISTED_EVENT);
+    } else if (!productEvent && status === 'EXIST') {
+      throw new AppHttpBadRequest(EventError.ERROR_EVENT_NOT_FOUND);
+    }
+
+    return productEvent;
+  }
+
+  async updateProductEvent(data: UpdateProductEventDto) {
+    const event = await this.findOneProductEventOrThrow(
+      { id: data.id },
+      'EXIST',
+    );
+
+    const product = await this.findOneOrThrowNotFound({
+      where: {
+        id: data.productId,
+      },
+    });
+
+    if (data.productIds && data.productIds.length) {
+      data['productBonus'] = await this.findProductsOrThrow(data);
+    }
+    data['product'] = product;
+
+    delete data.productId;
+    delete data.productIds;
+
+    await this.productEventRepo.update({ id: event.id }, data);
+
+    return {
+      success: true,
+    };
   }
 }

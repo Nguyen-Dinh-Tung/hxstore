@@ -21,6 +21,15 @@ export class ProductsEntity extends IdNumberDateEntity {
   totalSold: bigint;
 
   @NotNullColum()
+  origin: string;
+
+  @NotNullColum()
+  company: string;
+
+  @NotNullColum()
+  placeOfProduction: string;
+
+  @NotNullColum()
   urlIMG: string;
 
   @IsActiveFalseColumn()
