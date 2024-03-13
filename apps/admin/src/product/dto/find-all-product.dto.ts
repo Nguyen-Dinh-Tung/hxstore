@@ -4,6 +4,7 @@ import { QueryDate } from '@app/common/dto/query.dto';
 import {
   PositionRowEnum,
   PositionsScreenEnum,
+  ProductEventTypes,
   ProductTypesEnum,
 } from '@app/common/enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -65,6 +66,18 @@ export class ProductDto {
 
   positionsRow: PositionRowEnum;
 
+  eventName: string;
+
+  eventType: ProductEventTypes;
+
+  saleRate: number;
+
+  startDate: Date;
+
+  endDate: Date;
+
+  eventIsActive: boolean;
+
   constructor(entity: ProductsEntity) {
     this.id = entity.id;
 
@@ -91,6 +104,18 @@ export class ProductDto {
     this.positionsScreen = entity['positionsScreen'] ?? null;
 
     this.positionsRow = entity['positionsRow'] ?? null;
+
+    this.eventName = entity['eventName'] ?? null;
+
+    this.eventType = entity['eventType'] ?? null;
+
+    this.saleRate = entity['saleRate'] ?? null;
+
+    this.startDate = entity['startDate'] ?? null;
+
+    this.endDate = entity['endDate'] ?? null;
+
+    this.eventIsActive = entity['eventIsActive'] ?? null;
   }
 }
 

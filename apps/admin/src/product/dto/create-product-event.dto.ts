@@ -46,7 +46,7 @@ export class CreateProductEventDto {
   @ApiPropertyOptional()
   @IsArray()
   @ArrayMinSize(1)
-  @IsUUID('all', { each: true })
+  @IsNumber({}, { each: true })
   productIds: string[];
 
   @IsNotEmpty()

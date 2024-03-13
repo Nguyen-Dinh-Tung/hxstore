@@ -5,7 +5,15 @@ import {
 } from '@app/common/helpers';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, In, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptions,
+  In,
+  Like,
+  Repository,
+} from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import {
   AppHttpBadRequest,
@@ -26,6 +34,7 @@ import { PageMeta } from '@app/common/dto/pagination.dto';
 import { CreateProductEventDto } from './dto/create-product-event.dto';
 import { ProductEventEntity } from '@app/common/entities/product-event.entity';
 import { UpdateProductEventDto } from './dto/update-product-event.dto';
+import { FindAllEventDto } from './dto/find-all-event.dto';
 
 @Injectable()
 export class ProductService {
@@ -38,6 +47,8 @@ export class ProductService {
 
     @InjectRepository(ProductEventEntity)
     private productEventRepo: Repository<ProductEventEntity>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll(query: FindAllProductDto) {
@@ -70,6 +81,7 @@ export class ProductService {
   ) {
     const queryBuilder = this.productRepo
       .createQueryBuilder('product')
+      .leftJoin(ProductEventEntity, 'event', 'event.product_id = product.id')
       .limit(query.limit - configTotal)
       .offset(query.skip)
       .orderBy('product.created_at', query.order)
@@ -119,6 +131,7 @@ export class ProductService {
         'config',
         'config.product_id = product.id',
       )
+      .leftJoin(ProductEventEntity, 'event', 'event.product_id = product.id')
       .select([
         'product.id as id ',
         'product.name as name ',
@@ -133,6 +146,13 @@ export class ProductService {
         'config.is_active as configIsActive ',
         'config.positions_screen as positionsScreen ',
         'config.positions_row as positionsRow ',
+        'event.created_at as createdAt ',
+        'event.name as eventName ',
+        'event.type as eventType ',
+        'event.saleRate as saleRate ',
+        'event.startDate as startDate ',
+        'event.endDate as endDate ',
+        'event.isActive as eventIsActive ',
       ])
       .where('config.id is not null')
       .getRawMany();
@@ -274,21 +294,23 @@ export class ProductService {
       where: { id: data.productId },
     });
 
+    data['product'] = productMain;
+
     if (data.productIds && data.productIds.length) {
       data['productBonus'] = await this.findProductsOrThrow(data);
     }
 
-    data['product'] = productMain;
-
     delete data.productId;
     delete data.productIds;
 
-    await this.productEventRepo.save(
-      this.productEventRepo.create({
-        ...data,
-        createdAt: new Date().toISOString(),
-      }),
-    );
+    await this.dataSource.transaction(async (em) => {
+      await em.getRepository(ProductEventEntity).save(
+        this.productEventRepo.create({
+          ...data,
+          createdAt: new Date().toISOString(),
+        }),
+      );
+    });
 
     return {
       success: true,
@@ -305,6 +327,7 @@ export class ProductService {
     if (productBonus.length !== data.productIds.length) {
       throw new AppHttpBadRequest(ProductErrors.ERROR_MISSING_PRODUCT);
     }
+
     return productBonus;
   }
 
@@ -318,7 +341,6 @@ export class ProductService {
           id: data.productId,
         },
         id: data.id,
-        isActive: true,
       },
     });
 
@@ -356,5 +378,32 @@ export class ProductService {
     return {
       success: true,
     };
+  }
+
+  async findAllEvent(query: FindAllEventDto) {
+    const findOption = {
+      relations: {
+        product: true,
+        productBonus: true,
+      },
+      take: query.limit,
+      skip: query.skip,
+    } as FindManyOptions<ProductEventEntity>;
+
+    if (query.isActive !== undefined) {
+      findOption.where['isActive'] = query.isActive;
+    }
+
+    if (query.keyword) {
+      findOption.where['name'] = Like(`%${query.keyword}%`);
+    }
+
+    if (query.type) {
+      findOption.where['type'] = query.type;
+    }
+
+    const data = await this.productEventRepo.findAndCount(findOption);
+
+    return data;
   }
 }
