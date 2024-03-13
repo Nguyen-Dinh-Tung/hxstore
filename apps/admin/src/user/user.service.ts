@@ -17,4 +17,8 @@ export class UserService {
   async create(data: DeepPartial<UserEntity>) {
     return await this.userRepo.save(data);
   }
+
+  async update(id: string, data: DeepPartial<UserEntity>) {
+    return await this.userRepo.update({ id: id }, data);
+  }
 }

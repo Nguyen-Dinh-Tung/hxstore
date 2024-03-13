@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from '../user/user.service';
 import { AppHttpBadRequest, UserErrors } from '@app/exceptions';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UserEntity } from '@app/common';
 type TokenBodyType = {
   id: string;
 };
@@ -40,5 +42,17 @@ export class AuthService {
       secret: process.env.ADMIN_SECRET,
     });
     return token;
+  }
+
+  async updatePassword(data: UpdatePasswordDto, user: UserEntity) {
+    if (data.ordPassword !== user.password) {
+      throw new AppHttpBadRequest(UserErrors.ERROR_PASSWORD_WRONG);
+    }
+
+    await this.userService.update(user.id, { password: data.newPassword });
+
+    return {
+      success: true,
+    };
   }
 }
