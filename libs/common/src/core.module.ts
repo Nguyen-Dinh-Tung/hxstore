@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseOptions } from './database';
 import { ProductsEntity, UserEntity } from './entities';
 import { ConfigPositionsEntity } from './entities/config-positions.entity';
+import { ProductEventEntity } from './entities/product-event.entity';
 @Module({})
 @Global()
 export class CoreModule {
@@ -18,6 +19,7 @@ export class CoreModule {
           ProductsEntity,
           UserEntity,
           ConfigPositionsEntity,
+          ProductEventEntity,
         ]),
       ],
       exports: [TypeOrmModule],

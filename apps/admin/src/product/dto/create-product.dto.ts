@@ -16,6 +16,24 @@ export class CreateProductDto {
   name: string;
 
   @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  @Length(0, 255)
+  origin: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  @Length(0, 255)
+  company: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  @Length(0, 255)
+  placeOfProduction: string;
+
+  @IsNotEmpty()
   @ApiProperty({ enum: ProductTypesEnum })
   @IsEnum(ProductTypesEnum)
   type: ProductTypesEnum;

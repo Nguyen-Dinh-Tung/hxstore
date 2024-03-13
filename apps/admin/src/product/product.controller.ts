@@ -19,6 +19,8 @@ import { FindAllProductDto } from './dto/find-all-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SetPositionsProductDto } from './dto/set-positions-products.dto';
 import { UpdatePositionsProductDto } from './dto/accept-positions-product.dto';
+import { CreateProductEventDto } from './dto/create-product-event.dto';
+import { UpdateProductEventDto } from './dto/update-product-event.dto';
 
 @Controller('product')
 @ApiTags('Product api')
@@ -63,5 +65,15 @@ export class ProductController {
   @Patch('positions')
   async updatePositions(@Body() data: UpdatePositionsProductDto) {
     return await this.productService.updatePositions(data);
+  }
+
+  @Post('event')
+  async createProductEvent(@Body() data: CreateProductEventDto) {
+    return await this.productService.createProductEvent(data);
+  }
+
+  @Patch('event')
+  async updateProductEvent(@Body() data: UpdateProductEventDto) {
+    await this.productService.updateProductEvent(data);
   }
 }

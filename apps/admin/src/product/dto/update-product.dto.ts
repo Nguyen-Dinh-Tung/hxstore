@@ -17,6 +17,24 @@ export class UpdateProductDto {
   name: string;
 
   @IsOptional()
+  @ApiPropertyOptional()
+  @IsString()
+  @Length(0, 255)
+  origin: string;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  @IsString()
+  @Length(0, 255)
+  company: string;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  @IsString()
+  @Length(0, 255)
+  placeOfProduction: string;
+
+  @IsOptional()
   @ApiPropertyOptional({ enum: ProductTypesEnum })
   @IsEnum(ProductTypesEnum)
   type: ProductTypesEnum;
