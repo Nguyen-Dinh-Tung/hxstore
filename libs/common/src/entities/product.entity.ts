@@ -1,8 +1,9 @@
-import { Entity, ManyToMany, OneToOne } from 'typeorm';
+import { Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { IdNumberDateEntity } from './id.entity';
 import { IsActiveFalseColumn, NotNullColum } from '../database';
 import { ProductTypesEnum } from '../enum';
 import { ProductEventEntity } from './product-event.entity';
+import { OrdersEntity } from './orders.entity';
 
 @Entity('products')
 export class ProductsEntity extends IdNumberDateEntity {
@@ -43,4 +44,7 @@ export class ProductsEntity extends IdNumberDateEntity {
 
   @OneToOne(() => ProductEventEntity, (event) => event.product)
   event: ProductEventEntity;
+
+  @OneToMany(() => OrdersEntity, (order) => order.product, { nullable: true })
+  orders: OrdersEntity[];
 }

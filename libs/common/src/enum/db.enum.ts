@@ -18,3 +18,15 @@ export enum ProductEventTypes {
   SALE = 'SALE',
   BONUS = 'BONUS',
 }
+
+export enum OrderStatusEnum {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  CANCEL = 'CANCEL',
+}
+
+export enum DeliveryProductEnum {
+  SLOW = 'SLOW',
+  FAST = 'FAST',
+  EXPRESS = 'EXPRESS',
+}

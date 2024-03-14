@@ -10,7 +10,7 @@ export type EmailOtpBody = {
 };
 
 @Injectable()
-export class EmailOtpService {
+export class NodeMailerService {
   static email: string;
   static password: string;
 

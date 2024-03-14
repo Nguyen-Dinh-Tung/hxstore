@@ -5,3 +5,4 @@ export * from './entities';
 export * from './services';
 export * from './pipe';
 export * from './dto';
+export * from './modules';
