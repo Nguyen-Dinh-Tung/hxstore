@@ -1,4 +1,5 @@
-import { QueryDate } from '@app/common';
+import { QueryDate } from './query.dto';
+import { Paginate } from './pagination.dto';
 import { ProductEventTypes } from '@app/common/enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -61,3 +62,5 @@ export class EventDto {
     this.productBonus = entity.productBonus.map((e) => new ProductDto(e));
   }
 }
+
+export class EventPaginateDto extends Paginate(EventDto) {}

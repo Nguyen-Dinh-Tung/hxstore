@@ -119,4 +119,4 @@ export class ProductDto {
   }
 }
 
-export class ProductFindAllPaginate extends Paginate(ProductDto) {}
+export class ProductFindAllPaginateDto extends Paginate(ProductDto) {}

@@ -1,4 +1,11 @@
-import { ProductsEntity } from '@app/common';
+import {
+  EventDto,
+  EventPaginateDto,
+  FindAllEventDto,
+  FindAllProductDto,
+  ProductFindAllPaginateDto,
+  ProductsEntity,
+} from '@app/common';
 import {
   compareStartAndEndDateWithCurrentDate,
   saveImage,
@@ -9,7 +16,6 @@ import {
   DataSource,
   FindManyOptions,
   FindOneOptions,
-  FindOptions,
   In,
   Like,
   Repository,
@@ -22,10 +28,7 @@ import {
   FileErrors,
   ProductErrors,
 } from '@app/exceptions';
-import {
-  FindAllProductDto,
-  ProductFindAllPaginate,
-} from './dto/find-all-product.dto';
+
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SetPositionsProductDto } from './dto/set-positions-products.dto';
 import { ConfigPositionsEntity } from '@app/common/entities/config-positions.entity';
@@ -34,7 +37,6 @@ import { PageMeta } from '@app/common/dto/pagination.dto';
 import { CreateProductEventDto } from './dto/create-product-event.dto';
 import { ProductEventEntity } from '@app/common/entities/product-event.entity';
 import { UpdateProductEventDto } from './dto/update-product-event.dto';
-import { FindAllEventDto } from './dto/find-all-event.dto';
 
 @Injectable()
 export class ProductService {
@@ -68,7 +70,7 @@ export class ProductService {
 
     const total = await queryBuilder.getCount();
 
-    return new ProductFindAllPaginate(
+    return new ProductFindAllPaginateDto(
       products,
       new PageMeta(query.page, total, query.limit),
     );
@@ -335,14 +337,19 @@ export class ProductService {
     data: { productId?: number; id?: number },
     status: 'EXIST' | 'NOT-EXIST',
   ) {
-    const productEvent = await this.productEventRepo.findOne({
-      where: {
-        product: {
-          id: data.productId,
-        },
-        id: data.id,
-      },
-    });
+    const where = {} as FindOneOptions<ProductEventEntity>;
+
+    if (data.productId) {
+      where.where['product'] = {
+        id: data.productId,
+      };
+    }
+
+    if (data.id) {
+      where.where['id'] = data.id;
+    }
+
+    const productEvent = await this.productEventRepo.findOne(where);
 
     if (productEvent && status === 'NOT-EXIST') {
       throw new AppHttpBadRequest(EventError.ERROR_EXISTED_EVENT);
@@ -404,6 +411,37 @@ export class ProductService {
 
     const data = await this.productEventRepo.findAndCount(findOption);
 
-    return data;
+    return new EventPaginateDto(
+      data[0].map((e) => new EventDto(e)),
+      new PageMeta(query.page, query.limit, data[1]),
+    );
+  }
+
+  async getDetailProduct(id: number) {
+    const product = await this.productRepo.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        event: true,
+        bonusEvent: true,
+      },
+    });
+
+    if (!product) {
+      throw new AppHttpBadRequest(ProductErrors.ERROR_PRODUCT_NOT_FOUND);
+    }
+
+    return {
+      docs: product,
+    };
+  }
+
+  async getDetailEvent(id: number) {
+    const event = await this.findOneProductEventOrThrow({ id: id }, 'EXIST');
+
+    return {
+      docs: new EventDto(event),
+    };
   }
 }

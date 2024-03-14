@@ -1,7 +1,8 @@
-import { Entity } from 'typeorm';
+import { Entity, ManyToMany, OneToOne } from 'typeorm';
 import { IdNumberDateEntity } from './id.entity';
 import { IsActiveFalseColumn, NotNullColum } from '../database';
 import { ProductTypesEnum } from '../enum';
+import { ProductEventEntity } from './product-event.entity';
 
 @Entity('products')
 export class ProductsEntity extends IdNumberDateEntity {
@@ -34,4 +35,12 @@ export class ProductsEntity extends IdNumberDateEntity {
 
   @IsActiveFalseColumn()
   isActive: boolean;
+
+  @ManyToMany(() => ProductEventEntity, (event) => event.productBonus, {
+    nullable: true,
+  })
+  bonusEvent: ProductEventEntity[];
+
+  @OneToOne(() => ProductEventEntity, (event) => event.product)
+  event: ProductEventEntity;
 }

@@ -24,7 +24,7 @@ export class ProductEventEntity extends IdNumberDateEntity {
   @NullColumn()
   saleRate: number;
 
-  @ManyToMany(() => ProductsEntity, (product) => product.id, {
+  @ManyToMany(() => ProductsEntity, (product) => product.bonusEvent, {
     nullable: true,
   })
   @JoinTable()
