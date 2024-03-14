@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Entity, JoinColumn, JoinTable, ManyToMany, OneToOne } from 'typeorm';
 import { IdNumberDateEntity } from './id.entity';
 import { IsActiveFalseColumn, NotNullColum, NullColumn } from '../database';
 import { ProductEventTypes } from '../enum';
@@ -24,8 +24,10 @@ export class ProductEventEntity extends IdNumberDateEntity {
   @NullColumn()
   saleRate: number;
 
-  @OneToMany(() => ProductsEntity, (product) => product.id, { nullable: true })
-  @JoinColumn()
+  @ManyToMany(() => ProductsEntity, (product) => product.bonusEvent, {
+    nullable: true,
+  })
+  @JoinTable()
   productBonus: ProductsEntity[];
 
   @OneToOne(() => ProductsEntity, (product) => product.id, { nullable: true })

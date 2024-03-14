@@ -1,11 +1,25 @@
-import { ProductsEntity } from '@app/common';
+import {
+  EventDto,
+  EventPaginateDto,
+  FindAllEventDto,
+  FindAllProductDto,
+  ProductFindAllPaginateDto,
+  ProductsEntity,
+} from '@app/common';
 import {
   compareStartAndEndDateWithCurrentDate,
   saveImage,
 } from '@app/common/helpers';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, In, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindManyOptions,
+  FindOneOptions,
+  In,
+  Like,
+  Repository,
+} from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import {
   AppHttpBadRequest,
@@ -14,10 +28,7 @@ import {
   FileErrors,
   ProductErrors,
 } from '@app/exceptions';
-import {
-  FindAllProductDto,
-  ProductFindAllPaginate,
-} from './dto/find-all-product.dto';
+
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SetPositionsProductDto } from './dto/set-positions-products.dto';
 import { ConfigPositionsEntity } from '@app/common/entities/config-positions.entity';
@@ -38,6 +49,8 @@ export class ProductService {
 
     @InjectRepository(ProductEventEntity)
     private productEventRepo: Repository<ProductEventEntity>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll(query: FindAllProductDto) {
@@ -57,7 +70,7 @@ export class ProductService {
 
     const total = await queryBuilder.getCount();
 
-    return new ProductFindAllPaginate(
+    return new ProductFindAllPaginateDto(
       products,
       new PageMeta(query.page, total, query.limit),
     );
@@ -70,6 +83,7 @@ export class ProductService {
   ) {
     const queryBuilder = this.productRepo
       .createQueryBuilder('product')
+      .leftJoin(ProductEventEntity, 'event', 'event.product_id = product.id')
       .limit(query.limit - configTotal)
       .offset(query.skip)
       .orderBy('product.created_at', query.order)
@@ -119,6 +133,7 @@ export class ProductService {
         'config',
         'config.product_id = product.id',
       )
+      .leftJoin(ProductEventEntity, 'event', 'event.product_id = product.id')
       .select([
         'product.id as id ',
         'product.name as name ',
@@ -133,6 +148,13 @@ export class ProductService {
         'config.is_active as configIsActive ',
         'config.positions_screen as positionsScreen ',
         'config.positions_row as positionsRow ',
+        'event.created_at as createdAt ',
+        'event.name as eventName ',
+        'event.type as eventType ',
+        'event.saleRate as saleRate ',
+        'event.startDate as startDate ',
+        'event.endDate as endDate ',
+        'event.isActive as eventIsActive ',
       ])
       .where('config.id is not null')
       .getRawMany();
@@ -274,21 +296,23 @@ export class ProductService {
       where: { id: data.productId },
     });
 
+    data['product'] = productMain;
+
     if (data.productIds && data.productIds.length) {
       data['productBonus'] = await this.findProductsOrThrow(data);
     }
 
-    data['product'] = productMain;
-
     delete data.productId;
     delete data.productIds;
 
-    await this.productEventRepo.save(
-      this.productEventRepo.create({
-        ...data,
-        createdAt: new Date().toISOString(),
-      }),
-    );
+    await this.dataSource.transaction(async (em) => {
+      await em.getRepository(ProductEventEntity).save(
+        this.productEventRepo.create({
+          ...data,
+          createdAt: new Date().toISOString(),
+        }),
+      );
+    });
 
     return {
       success: true,
@@ -305,6 +329,7 @@ export class ProductService {
     if (productBonus.length !== data.productIds.length) {
       throw new AppHttpBadRequest(ProductErrors.ERROR_MISSING_PRODUCT);
     }
+
     return productBonus;
   }
 
@@ -312,15 +337,19 @@ export class ProductService {
     data: { productId?: number; id?: number },
     status: 'EXIST' | 'NOT-EXIST',
   ) {
-    const productEvent = await this.productEventRepo.findOne({
-      where: {
-        product: {
-          id: data.productId,
-        },
-        id: data.id,
-        isActive: true,
-      },
-    });
+    const where = {} as FindOneOptions<ProductEventEntity>;
+
+    if (data.productId) {
+      where.where['product'] = {
+        id: data.productId,
+      };
+    }
+
+    if (data.id) {
+      where.where['id'] = data.id;
+    }
+
+    const productEvent = await this.productEventRepo.findOne(where);
 
     if (productEvent && status === 'NOT-EXIST') {
       throw new AppHttpBadRequest(EventError.ERROR_EXISTED_EVENT);
@@ -355,6 +384,64 @@ export class ProductService {
 
     return {
       success: true,
+    };
+  }
+
+  async findAllEvent(query: FindAllEventDto) {
+    const findOption = {
+      relations: {
+        product: true,
+        productBonus: true,
+      },
+      take: query.limit,
+      skip: query.skip,
+    } as FindManyOptions<ProductEventEntity>;
+
+    if (query.isActive !== undefined) {
+      findOption.where['isActive'] = query.isActive;
+    }
+
+    if (query.keyword) {
+      findOption.where['name'] = Like(`%${query.keyword}%`);
+    }
+
+    if (query.type) {
+      findOption.where['type'] = query.type;
+    }
+
+    const data = await this.productEventRepo.findAndCount(findOption);
+
+    return new EventPaginateDto(
+      data[0].map((e) => new EventDto(e)),
+      new PageMeta(query.page, query.limit, data[1]),
+    );
+  }
+
+  async getDetailProduct(id: number) {
+    const product = await this.productRepo.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        event: true,
+        bonusEvent: true,
+      },
+    });
+
+    if (!product) {
+      throw new AppHttpBadRequest(ProductErrors.ERROR_PRODUCT_NOT_FOUND);
+    }
+
+    return {
+      docs: product,
+    };
+  }
+
+  async getDetailEvent(id: number) {
+    const event = await this.findOneProductEventOrThrow({ id: id }, 'EXIST');
+
+    return {
+      docs: new EventDto(event),
     };
   }
 }

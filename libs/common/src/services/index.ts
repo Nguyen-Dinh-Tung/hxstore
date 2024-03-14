@@ -1,1 +1,1 @@
-export * from './email-otp.service';
+export * from './node-mailer.service';

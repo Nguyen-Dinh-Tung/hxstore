@@ -5,6 +5,6 @@ import { ProductModule } from './product/product.module';
 import { CoreModule } from '@app/common';
 
 @Module({
-  imports: [CoreModule, UserModule, ConfigModule.forRoot(), ProductModule, ,],
+  imports: [CoreModule, UserModule, ConfigModule.forRoot(), ProductModule],
 })
 export class AppModule {}

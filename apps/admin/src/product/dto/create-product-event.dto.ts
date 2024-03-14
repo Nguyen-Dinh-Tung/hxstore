@@ -9,7 +9,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   Max,
   Min,
 } from 'class-validator';
@@ -46,7 +45,7 @@ export class CreateProductEventDto {
   @ApiPropertyOptional()
   @IsArray()
   @ArrayMinSize(1)
-  @IsUUID('all', { each: true })
+  @IsNumber({}, { each: true })
   productIds: string[];
 
   @IsNotEmpty()
