@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
-import { OrdersModule } from 'apps/user/src/orders/orders.module';
 @Module({
   imports: [
     CoreModule.forRoot(),
@@ -19,7 +18,6 @@ import { OrdersModule } from 'apps/user/src/orders/orders.module';
     }),
     ProductModule,
     UserModule,
-    OrdersModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
   exports: [],
