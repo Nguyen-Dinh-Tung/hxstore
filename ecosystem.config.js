@@ -1,14 +1,19 @@
+const env = {
+  NODE_ENV: 'production',
+};
 module.exports = {
   apps: [
     {
       name: 'hx-admin',
       script: './dist/user/main.js',
-      args: 'limit',
+      env,
+      time: true,
     },
     {
       name: 'hx-user',
       script: './dist/admin/main.js',
-      args: 'rotate',
+      env,
+      time: true,
     },
   ],
 };
