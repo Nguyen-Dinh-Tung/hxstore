@@ -7,6 +7,7 @@ import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { AllFillterException } from '@app/exceptions';
 import { ConfigService } from '@nestjs/config';
+import { resolve } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -45,7 +46,7 @@ async function bootstrap() {
     }),
   );
 
-  console.log('process.env =>>>>>', process.env);
+  app.useStaticAssets(resolve('uploads'), { prefix: '/uploads' });
 
   if (configService.get('SWAGGER') === 'true') {
     const config = new DocumentBuilder()
