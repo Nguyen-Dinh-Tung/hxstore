@@ -5,13 +5,13 @@ module.exports = {
   apps: [
     {
       name: 'hx-admin',
-      script: './dist/user/main.js',
+      script: './dist/apps/user/main.js',
       env,
       time: true,
     },
     {
       name: 'hx-user',
-      script: './dist/admin/main.js',
+      script: './dist/apps/admin/main.js',
       env,
       time: true,
     },
