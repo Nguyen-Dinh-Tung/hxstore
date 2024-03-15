@@ -9,7 +9,7 @@ export class DatabaseOptions implements TypeOrmOptionsFactory {
     return {
       ...makeTypeormOptions(),
       autoLoadEntities: true,
-      synchronize: true,
+      // synchronize: true,
       retryAttempts: 2,
       namingStrategy: new SnakeNamingStrategy(),
     };
