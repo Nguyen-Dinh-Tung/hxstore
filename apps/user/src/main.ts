@@ -7,6 +7,7 @@ import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { AllFillterException } from '@app/exceptions';
 import { ConfigService } from '@nestjs/config';
+import { resolve } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -36,6 +37,8 @@ async function bootstrap() {
     credentials: true,
     origin: true,
   });
+
+  app.useStaticAssets(resolve('uploads'), { prefix: '/uploads' });
 
   app.useGlobalPipes(
     new ValidationPipe({
