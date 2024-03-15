@@ -25,6 +25,9 @@ export class OrdersEntity extends IdNumberDateEntity {
   @NullColumn()
   email: string;
 
+  @NotNullColum()
+  address: string;
+
   @NotNullColum({ type: 'enum', enum: DeliveryProductEnum })
   delivery: DeliveryProductEnum;
 

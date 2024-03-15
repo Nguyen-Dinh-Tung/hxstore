@@ -23,6 +23,7 @@ export enum OrderStatusEnum {
   PENDING = 'PENDING',
   PAID = 'PAID',
   CANCEL = 'CANCEL',
+  SUCCESS = 'SUCCESS',
 }
 
 export enum DeliveryProductEnum {

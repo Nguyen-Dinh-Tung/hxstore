@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateOrdersDto {
@@ -19,12 +20,8 @@ export class CreateOrdersDto {
   @IsNotEmpty()
   @ApiProperty()
   @IsNumber()
+  @Min(1)
   amount: number;
-
-  @IsNotEmpty()
-  @ApiProperty()
-  @IsNumber()
-  payAmount: number;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -46,4 +43,9 @@ export class CreateOrdersDto {
   @ApiPropertyOptional()
   @IsEmail()
   email: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  address: string;
 }
