@@ -76,7 +76,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllFillterException(httpAdapter));
 
-  const port = configService.get<number>('server.USER_PORT') || 3000;
+  const port = configService.get<number>('server.USER_PORT');
   await app.listen(port, () => {
     Logger.log('API is listening on port: ' + port);
   });
