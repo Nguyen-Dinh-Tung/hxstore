@@ -1,5 +1,5 @@
 const env = {
-  NODE_ENV: 'env',
+  NODE_ENV: 'production',
 };
 module.exports = {
   apps: [
