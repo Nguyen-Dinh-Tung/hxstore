@@ -10,7 +10,7 @@ import {
   ProductsEntity,
 } from '@app/common';
 import { Repository } from 'typeorm';
-import { AppHttpBadRequest, ProductErrors } from '@app/exceptions';
+import { AppHttpBadRequest, OrderErrors, ProductErrors } from '@app/exceptions';
 import { FindAllOrdersDto } from './dto/find-all-orders.dto';
 
 @Injectable()
@@ -38,6 +38,10 @@ export class OrdersService {
 
     if (!product) {
       throw new AppHttpBadRequest(ProductErrors.ERROR_PRODUCT_NOT_FOUND);
+    }
+
+    if (data.amount > product.amount - product.totalSold) {
+      throw new AppHttpBadRequest(OrderErrors.ERROR_AMOUNT_TO_LARGE);
     }
 
     const payAmount = data.amount * Number(product.price);

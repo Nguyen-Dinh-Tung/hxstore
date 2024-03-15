@@ -5,17 +5,20 @@ import {
   OrderPaginateDto,
   OrdersEntity,
   PageMeta,
+  ProductsEntity,
 } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions, Like, Repository } from 'typeorm';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { AppHttpBadRequest, OrderErrors } from '@app/exceptions';
+import { AppHttpBadRequest, OrderErrors, ProductErrors } from '@app/exceptions';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(OrdersEntity)
     private readonly ordersRepo: Repository<OrdersEntity>,
+    @InjectRepository(ProductsEntity)
+    private readonly productRepo: Repository<ProductsEntity>,
   ) {}
 
   async findAll(query: FindAllOrdersDto) {
@@ -79,7 +82,26 @@ export class OrdersService {
       },
     });
 
-    await this.ordersRepo.update({ id: data.id }, { status: data.status });
+    const product = await this.productRepo.findOne({
+      where: {
+        id: data.productId,
+      },
+    });
+
+    if (data.productId) {
+      if (!product) {
+        throw new AppHttpBadRequest(ProductErrors.ERROR_PRODUCT_NOT_FOUND);
+      }
+
+      data['product'] = product;
+      delete data.productId;
+    }
+
+    if (data.amount > product.amount - product.totalSold) {
+      throw new AppHttpBadRequest(OrderErrors.ERROR_AMOUNT_TO_LARGE);
+    }
+
+    await this.ordersRepo.update({ id: data.id }, data);
 
     return {
       success: true,

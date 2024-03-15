@@ -164,7 +164,7 @@ export class ProductService {
 
   async create(data: CreateProductDto, file: Express.Multer.File) {
     if (file) {
-      data.urlIMG = saveImage(file, 'uploads/images/products');
+      data.urlIMG = saveImage(file, 'uploads/images/products/');
     } else {
       throw new AppHttpBadRequest(FileErrors.ERROR_MISSING_FILE);
     }
@@ -188,7 +188,7 @@ export class ProductService {
     });
 
     if (file) {
-      product.urlIMG = saveImage(file, 'uploads/images/products');
+      product.urlIMG = saveImage(file, 'uploads/images/products/');
     }
 
     product = { ...product, ...data };

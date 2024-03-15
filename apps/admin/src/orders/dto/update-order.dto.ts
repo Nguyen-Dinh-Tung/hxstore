@@ -7,12 +7,14 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 
 export class UpdateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   @IsNumber()
+  @Min(1)
   id: number;
 
   @IsNotEmpty()
@@ -28,11 +30,13 @@ export class UpdateOrderDto {
   @IsOptional()
   @ApiPropertyOptional()
   @IsNumber()
+  @Min(1)
   amount: number;
 
   @IsOptional()
   @ApiPropertyOptional()
   @IsNumber()
+  @Min(1)
   payAmount: number;
 
   @IsOptional()
