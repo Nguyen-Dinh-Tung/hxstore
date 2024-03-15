@@ -64,7 +64,7 @@ export class OrdersService {
         title: 'Đơn đặt sản phẩm Sinhlyshop90',
         content: `Cảm ơn quý khách ${data.fullname}
 Đã đặt sản phẩm ${product.name}
-Địa chỉ nhận : ${data.address}
+Địa chỉ nhận : ${data.address}g
 Số điện thoại : ${data.phone}
 Giá thành : ${payAmount}
 Số lượng : ${data.amount}

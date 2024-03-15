@@ -45,7 +45,9 @@ async function bootstrap() {
     }),
   );
 
-  if (configService.get('SWAGGER')) {
+  console.log('process.env =>>>>>', process.env);
+
+  if (configService.get('SWAGGER') === 'true') {
     const config = new DocumentBuilder()
       .setTitle('Admin API specs')
       .setDescription('The API description')

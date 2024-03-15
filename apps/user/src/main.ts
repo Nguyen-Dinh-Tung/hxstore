@@ -45,7 +45,7 @@ async function bootstrap() {
     }),
   );
 
-  if (configService.get('swagger')) {
+  if (configService.get('SWAGGER') === 'true') {
     const config = new DocumentBuilder()
       .setTitle('User API specs')
       .setDescription('The API description')
