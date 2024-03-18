@@ -1,4 +1,5 @@
 import {
+  BaseProductService,
   EventDto,
   EventPaginateDto,
   FindAllEventDto,
@@ -10,7 +11,6 @@ import {
   compareStartAndEndDateWithCurrentDate,
   saveImage,
 } from '@app/common/helpers';
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DataSource,
@@ -38,20 +38,20 @@ import { CreateProductEventDto } from './dto/create-product-event.dto';
 import { ProductEventEntity } from '@app/common/entities/product-event.entity';
 import { UpdateProductEventDto } from './dto/update-product-event.dto';
 
-@Injectable()
-export class ProductService {
+export class ProductService extends BaseProductService {
   constructor(
     @InjectRepository(ProductsEntity)
-    private productRepo: Repository<ProductsEntity>,
-
+    protected productRepo: Repository<ProductsEntity>,
     @InjectRepository(ConfigPositionsEntity)
-    private configPositionsRepo: Repository<ConfigPositionsEntity>,
+    protected configPositionsRepo: Repository<ConfigPositionsEntity>,
 
     @InjectRepository(ProductEventEntity)
-    private productEventRepo: Repository<ProductEventEntity>,
+    protected productEventRepo: Repository<ProductEventEntity>,
 
-    private readonly dataSource: DataSource,
-  ) {}
+    protected readonly dataSource: DataSource,
+  ) {
+    super(productRepo);
+  }
 
   async findAll(query: FindAllProductDto) {
     const configProduct = await this.getConfigProduct();
@@ -81,12 +81,9 @@ export class ProductService {
     ids: string[],
     configTotal: number,
   ) {
-    const queryBuilder = this.productRepo
-      .createQueryBuilder('product')
+    const queryBuilder = this.getFindAllSelect(query)
       .leftJoin(ProductEventEntity, 'event', 'event.product_id = product.id')
       .limit(query.limit - configTotal)
-      .offset(query.skip)
-      .orderBy('product.created_at', query.order)
       .select([
         'product.id as id ',
         'product.name as name ',
@@ -98,23 +95,6 @@ export class ProductService {
         'product.is_active as isActive ',
         'product.created_at as createdAt ',
       ]);
-    if (query.keyword) {
-      queryBuilder.where('product.name LIKE :keyword', {
-        keyword: `%${query.keyword}%`,
-      });
-    }
-
-    if (query.type) {
-      queryBuilder.andWhere('product.type = :type', { type: query.type });
-    }
-
-    if (query.min) {
-      queryBuilder.andWhere('product.price >= :min', { min: query.min });
-    }
-
-    if (query.max) {
-      queryBuilder.andWhere('product.price <= :max', { max: query.max });
-    }
 
     if (ids.length) {
       queryBuilder.andWhere('product.id NOT IN (:...ids)', { ids: ids });
