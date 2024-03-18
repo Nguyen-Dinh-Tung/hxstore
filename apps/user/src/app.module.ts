@@ -7,7 +7,7 @@ import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
-    CoreModule,
+    CoreModule.forRoot(),
     UserModule,
     ConfigModule.forRoot(),
     ProductModule,

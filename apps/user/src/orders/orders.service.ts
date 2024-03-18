@@ -71,8 +71,7 @@ Số lượng : ${data.amount}
 Số lượng : ${data.amount}
 Chuyển phát : ${delivery[data.delivery]}
 Sản phẩm sẽ được gửi đến quý khách ít ngày tới !
-Xin Cảm ơn .
-                `,
+Xin Cảm ơn .`,
       });
     }
 
