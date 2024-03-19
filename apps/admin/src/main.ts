@@ -46,8 +46,6 @@ async function bootstrap() {
     }),
   );
 
-  app.useStaticAssets(resolve('uploads'), { prefix: '/uploads' });
-
   if (configService.get('SWAGGER') === 'true') {
     const config = new DocumentBuilder()
       .setTitle('Admin API specs')
