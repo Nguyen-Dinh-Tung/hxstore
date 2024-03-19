@@ -9,6 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { OrdersModule } from './orders/orders.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
     CoreModule.forRoot(),
@@ -20,6 +22,11 @@ import { OrdersModule } from './orders/orders.module';
     ProductModule,
     UserModule,
     OrdersModule,
+    ServeStaticModule.forRoot({
+      rootPath: join('.', '/uploads'),
+      serveRoot: '/uploads',
+      // exclude: [''],
+    }),
   ],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
   exports: [],
