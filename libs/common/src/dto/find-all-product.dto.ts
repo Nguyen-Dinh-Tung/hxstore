@@ -54,6 +54,8 @@ export class ProductDto {
 
   urlIMG: string;
 
+  placeOfProduction: string;
+
   isActive: boolean;
 
   createdAt: Date;
@@ -94,6 +96,8 @@ export class ProductDto {
     this.urlIMG = entity.urlIMG;
 
     this.isActive = entity.isActive;
+
+    this.placeOfProduction = entity.placeOfProduction;
 
     this.createdAt = entity.createdAt;
 

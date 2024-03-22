@@ -95,6 +95,7 @@ export class ProductService {
         'product.price as price ',
         'product.total_sold as totalSold ',
         'product.url_img as urlIMG ',
+        'product.place_of_production as placeOfProduction ',
         'product.is_active as isActive ',
         'product.created_at as createdAt ',
       ]);
