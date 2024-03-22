@@ -103,6 +103,7 @@ export class ProductService {
         'product.total_sold as totalSold ',
         'product.url_img as urlIMG ',
         'product.is_active as isActive ',
+        'product.place_of_production as placeOfProduction ',
         'product.created_at as createdAt ',
       ]);
     if (query.keyword) {
