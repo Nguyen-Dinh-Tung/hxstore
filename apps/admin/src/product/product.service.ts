@@ -129,7 +129,7 @@ export class ProductService {
   async getConfigProduct() {
     const configProduct = await this.productRepo
       .createQueryBuilder('product')
-      .leftJoinAndSelect(
+      .leftJoin(
         ConfigPositionsEntity,
         'config',
         'config.product_id = product.id',
@@ -149,7 +149,7 @@ export class ProductService {
         'config.is_active as configIsActive ',
         'config.positions_screen as positionsScreen ',
         'config.positions_row as positionsRow ',
-        'event.created_at as createdAt ',
+        'event.created_at as eventCreatedAt ',
         'event.name as eventName ',
         'event.type as eventType ',
         'event.saleRate as saleRate ',
@@ -163,7 +163,7 @@ export class ProductService {
     return configProduct;
   }
 
-  async create(data: CreateProductDto, file: Express.Multer.File) {
+  async create(data: CreateProductDto, file?: Express.Multer.File) {
     if (file) {
       data.urlIMG = saveImage(file, 'uploads/images/products/');
     } else {
@@ -172,6 +172,7 @@ export class ProductService {
 
     data.amount = BigInt(data.amount);
     data.price = BigInt(data.price);
+
     await this.productRepo.save(
       this.productRepo.create({ ...data, createdAt: new Date().toISOString() }),
     );
@@ -181,7 +182,7 @@ export class ProductService {
     };
   }
 
-  async update(data: UpdateProductDto, file: Express.Multer.File) {
+  async update(data: UpdateProductDto, file?: Express.Multer.File) {
     let product = await this.findOneOrThrowNotFound({
       where: {
         id: data.id,

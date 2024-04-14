@@ -49,7 +49,7 @@ export class CreateProductDto {
   price: bigint;
 
   @ApiProperty({ type: String, format: 'binary' })
-  file;
+  file?;
 
-  urlIMG;
+  urlIMG?;
 }

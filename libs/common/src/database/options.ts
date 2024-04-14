@@ -18,6 +18,6 @@ export function makeTypeormOptions(): DataSourceOptions {
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     entities: [],
-    logging: ['error', 'warn', ...logForDevTest()],
+    // logging: ['error', 'warn', ...logForDevTest()],
   };
 }

@@ -40,11 +40,11 @@ export class ProductsEntity extends IdNumberDateEntity {
   @ManyToMany(() => ProductEventEntity, (event) => event.productBonus, {
     nullable: true,
   })
-  bonusEvent: ProductEventEntity[];
+  bonusEvent?: ProductEventEntity[];
 
   @OneToOne(() => ProductEventEntity, (event) => event.product)
-  event: ProductEventEntity;
+  event?: ProductEventEntity;
 
   @OneToMany(() => OrdersEntity, (order) => order.product, { nullable: true })
-  orders: OrdersEntity[];
+  orders?: OrdersEntity[];
 }

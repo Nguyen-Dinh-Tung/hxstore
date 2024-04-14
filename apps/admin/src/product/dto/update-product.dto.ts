@@ -55,5 +55,5 @@ export class UpdateProductDto {
   id: number;
 
   @ApiPropertyOptional({ type: String, format: 'binary' })
-  file;
+  file?;
 }

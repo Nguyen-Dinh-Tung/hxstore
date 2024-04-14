@@ -16,8 +16,8 @@ export class CoreModule {
         }),
         //   Push entity use global
         TypeOrmModule.forFeature([
-          ProductsEntity,
           UserEntity,
+          ProductsEntity,
           ConfigPositionsEntity,
           ProductEventEntity,
           OrdersEntity,
