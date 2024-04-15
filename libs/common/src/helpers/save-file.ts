@@ -1,5 +1,8 @@
 import * as fs from 'fs';
-export const saveImage = (file: Express.Multer.File, staticFolder: string) => {
+export const saveImage = (
+  file: Express.Multer.File,
+  staticFolder: string,
+): string => {
   const path = file.path;
   const fileName = file.filename;
   const type = file.mimetype.split('/').pop().toLowerCase();

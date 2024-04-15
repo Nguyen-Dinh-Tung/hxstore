@@ -23,19 +23,20 @@ import { AppHttpBadRequest, FileErrors } from '@app/exceptions';
 import * as fs from 'fs';
 import { ConfigProductType } from '../../types/product.types';
 import { ConfigPositionsEntity } from '@app/common/entities/config-positions.entity';
+import * as helpers from '@app/common/helpers/save-file';
 
-function fakeFile() {
-  const filePath = './426545596_908524891071143_5538405799051611392_n.jpg';
-  const readStream = fs.createReadStream(filePath);
+const mockFile: Express.Multer.File = {
+  fieldname: 'avatar',
+  originalname: 'avatar.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  size: 12345,
+  destination: 'uploads/images/products/',
+  filename: 'avatar.jpg',
+  path: 'uploads/images/products/anyavatar.jpg.jpeg',
+  buffer: Buffer.from('file contents'),
+} as Express.Multer.File;
 
-  const imageObject = {
-    file: readStream,
-    filename: 'myImage.png',
-    contentType: 'image/png',
-  };
-
-  return imageObject;
-}
 describe('Product ', () => {
   let productController;
   let productService;
@@ -104,6 +105,7 @@ describe('Product ', () => {
     jest
       .spyOn(productService, 'findAll')
       .mockResolvedValueOnce(mockProductPaginate);
+
     const result = await productService.findAll(query);
     expect(productService.findAll).toHaveBeenCalledWith(query);
     expect(result).toEqual(mockProductPaginate);
@@ -117,11 +119,21 @@ describe('Product ', () => {
     });
 
     it('Should create success', async () => {
-      jest.spyOn(productService, 'create').mockResolvedValueOnce(successRes);
+      const mockProductCreate = {
+        ...mockProductDto,
+        createdAt: new Date().toISOString(),
+      };
+      jest
+        .spyOn(productRepo, 'create')
+        .mockResolvedValueOnce(mockProductCreate);
+      jest.spyOn(productRepo, 'save').mockResolvedValueOnce(true);
+      jest.spyOn(helpers, 'saveImage').mockResolvedValueOnce('string' as never);
 
-      const res = await productService.create(mockProductDto);
-      expect(productService.create).toHaveBeenCalledWith(mockProductDto);
-      expect(res).toEqual(successRes);
+      const result = await productService.create(mockProductDto, mockFile);
+
+      expect(productRepo.save).toBeCalledTimes(1);
+      expect(productRepo.save).toBeCalledWith(mockProductCreate);
+      expect(result).toEqual(successRes);
     });
   });
 
